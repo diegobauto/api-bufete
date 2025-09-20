@@ -44,7 +44,7 @@ app.use(errorHandler);
 
 // Escucha
 app.listen(PORT, () => {
-  logger.info(`Servidor ejecutandose / Puerto: ${PORT}`);
+  logger.info(`Servidor ejecutandose / http://localhost:${PORT}/`);
 });
 
 module.exports = app;

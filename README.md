@@ -19,12 +19,20 @@ Desarrollar una API REST para la gestión de abogados y demandas en un bufete. S
 
 ## 🛠️ Instalación y Ejecución
 
+A continuación se declaran los pasos para la instalación y ejecución de la API, tener en cuenta cada uno de los comandos:
+
 1. **Clonar el repositorio**
 
+Clonar el repositorio
 ```bash
 git clone https://github.com/diegobauto/api-bufete.git
+```
+
+Ingresar a la carpeta clonada (al proyecto)
+```bash
 cd api-bufete
 ```
+
 2. **Instalar dependencias**
 
 ```bash
@@ -32,8 +40,8 @@ npm install
 ```
 
 3. **Configurar variables de entorno**
-Crear archivo .env en la raíz del proyecto
 
+Crear archivo .env en la raíz del proyecto, usar de ejemplo:
 ```bash
 NODE_ENV=development
 PORT=3000
@@ -51,17 +59,20 @@ JWT_EXPIRE=2h
 ```
 
 4. **Ejecutar archivo Docker Compose**
-Es necesario tener instalado Docker en tú maquina
 
+Es necesario tener instalado Docker en tú maquina
 ```bash
 docker compose up -d
 ```
 
 5. **Ejecutar migraciones y seeders**
-Paso escencial para la creación de tablas y registros de prueba
 
+Paso escencial para la creación de tablas y registros de prueba
 ```bash
 npm run db:migrate
+```
+
+```bash
 npm run db:seed
 ```
 
