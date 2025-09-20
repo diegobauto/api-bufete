@@ -4,7 +4,7 @@ const { catchAsync } = require("../middlewares/errorHandler");
 class LawyerController {
   /**
    * @swagger
-   * /api/lawyers:
+   * /lawyers:
    *   post:
    *     tags:
    *       - Abogado (Lawyer)
@@ -28,13 +28,17 @@ class LawyerController {
    *                 status:
    *                   type: number
    *                   example: 201
+   *                 success:
+   *                   type: bool
+   *                   example: true
    *                 message:
-   * 
    *                   type: string
    *                   example: Abogado creado exitosamente
    *                 data:
    *                   type: object
    *                   $ref: '#/components/schemas/Lawyer'
+   *       400:
+   *         description: El correo electronico ya esta en uso
    */
   crearAbogado = catchAsync(async (req, res) => {
     const abogado = await LawyerService.crearAbogado(req.body, req.user);
@@ -48,7 +52,7 @@ class LawyerController {
 
   /**
    * @swagger
-   * /api/lawyers:
+   * /lawyers:
    *   get:
    *     tags:
    *       - Abogado (Lawyer)
@@ -74,6 +78,27 @@ class LawyerController {
    *     responses:
    *       200:
    *         description: Lista de abogados obtenida exitosamente
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: number
+   *                   example: 200
+   *                 success:
+   *                   type: bool
+   *                   example: true
+   *                 message:
+   *                   type: string
+   *                   example: Lista de abogados obtenida exitosamente
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                      $ref: '#/components/schemas/Lawyer'
+   *                 metadata:
+   *                   type: any
+   *                   example: {}
    */
   obtenerAbogados = catchAsync(async (req, res) => {
     const { lawyers, metadata } = await LawyerService.obtenerAbogados(
@@ -90,7 +115,7 @@ class LawyerController {
 
   /**
    * @swagger
-   * /api/lawyers/{id}:
+   * /lawyers/{id}:
    *   get:
    *     tags:
    *       - Abogado (Lawyer)
@@ -104,10 +129,27 @@ class LawyerController {
    *         schema:
    *           type: string
    *           format: uuid
-   *         description: ID del abogado 
+   *         description: ID del abogado
    *     responses:
    *       200:
    *         description: Abogado obtenido exitosamente
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: number
+   *                   example: 200
+   *                 success:
+   *                   type: bool
+   *                   example: true
+   *                 message:
+   *                   type: string
+   *                   example: Abogado obtenido exitosamente
+   *                 data:
+   *                   type: object
+   *                   $ref: '#/components/schemas/Lawyer'
    *       404:
    *         description: Abogado no encontrado
    */

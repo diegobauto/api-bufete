@@ -4,7 +4,7 @@ const { catchAsync } = require("../middlewares/errorHandler");
 class LawsuitController {
   /**
    * @swagger
-   * /api/lawsuits:
+   * /lawsuits:
    *   post:
    *     tags:
    *       - Demanda (Lawsuit)
@@ -28,12 +28,17 @@ class LawsuitController {
    *                 status:
    *                   type: number
    *                   example: 201
+   *                 success:
+   *                   type: bool
+   *                   example: true
    *                 message:
    *                   type: string
    *                   example: Demanda creada exitosamente
    *                 data:
    *                   type: object
    *                   $ref: '#/components/schemas/Lawsuit'
+   *       400:
+   *         description: El número de caso ya existe
    */
   crearDemanda = catchAsync(async (req, res) => {
     const demanda = await LawsuitService.crearDemanda(req.body, req.user);
@@ -47,7 +52,7 @@ class LawsuitController {
 
   /**
    * @swagger
-   * /api/lawsuits:
+   * /lawsuits:
    *   get:
    *     tags:
    *       - Demanda (Lawsuit)
@@ -90,7 +95,10 @@ class LawsuitController {
    *               properties:
    *                 status:
    *                   type: number
-   *                   example: 201
+   *                   example: 200
+   *                 success:
+   *                   type: bool
+   *                   example: true
    *                 message:
    *                   type: string
    *                   example: Lista de demandas obtenida exitosamente
@@ -98,6 +106,9 @@ class LawsuitController {
    *                   type: array
    *                   items:
    *                    $ref: '#/components/schemas/Lawsuit'
+   *                 metadata:
+   *                   type: any
+   *                   example: {}
    */
   obtenerDemandas = catchAsync(async (req, res) => {
     const { lawsuits, metadata } = await LawsuitService.obtenerDemandas(req.query);
@@ -112,7 +123,7 @@ class LawsuitController {
 
   /**
    * @swagger
-   * /api/lawsuits/{id}/assign:
+   * /lawsuits/{id}/assign:
    *   put:
    *     tags:
    *       - Demanda (Lawsuit)
@@ -144,6 +155,8 @@ class LawsuitController {
    *         description: Asignación realizada exitosamente
    *       404:
    *         description: Abogado o demanda no encontrada
+   *       400:
+   *         description: El abogado se encuentra inactivo
    */
   asignarAbogado = catchAsync(async (req, res) => {
     const { lawyer_id } = req.body;

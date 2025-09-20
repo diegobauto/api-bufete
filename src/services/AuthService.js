@@ -13,7 +13,7 @@ class AuthService {
     // Verificar usuario y contraseña
     if (!user || !(await user.comparePassword(password))) {
       logger.warn(`Login fallido por el usuario: ${username}`);
-      return next(new CustomError("Credenciales invalidas", 401));
+      throw new CustomError("Credenciales invalidas", 401);
     }
 
     logger.info(`Usuario ${username} inició sesión exitosamente`);

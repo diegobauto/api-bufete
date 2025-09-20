@@ -172,11 +172,6 @@ const options = {
               enum: ["pending", "assigned", "resolved"],
               default: "pending",
             },
-            lawyer_id: {
-              type: "string",
-              format: "uuid",
-              nullable: true,
-            },
           },
         },
         // Error: {

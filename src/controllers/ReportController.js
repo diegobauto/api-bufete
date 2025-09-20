@@ -4,7 +4,7 @@ const { catchAsync } = require("../middlewares/errorHandler");
 class ReportController {
   /**
    * @swagger
-   * /api/reports/lawyers/{id}/lawsuits:
+   * /reports/lawyers/{id}/lawsuits:
    *   get:
    *     tags:
    *       - Reportes
@@ -47,8 +47,14 @@ class ReportController {
    *               type: object
    *               properties:
    *                 status:
+   *                   type: number
+   *                   example: 200
+   *                 success:
+   *                   type: bool
+   *                   example: true
+   *                 message:
    *                   type: string
-   *                   example: success
+   *                   example: Listado de demandas obtenido exitosamente
    *                 data:
    *                   type: object
    *                   properties:
@@ -58,6 +64,9 @@ class ReportController {
    *                       type: array
    *                       items:
    *                         $ref: '#/components/schemas/Lawsuit'
+   *                 metadata:
+   *                   type: any
+   *                   example: {}
    *       404:
    *         description: El abogado no existe
    */

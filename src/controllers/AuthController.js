@@ -4,7 +4,7 @@ const { catchAsync } = require("../middlewares/errorHandler");
 class AuthController {
   /**
    * @swagger
-   * /api/auth/login:
+   * /auth/login:
    *   post:
    *     tags:
    *       - Autenticación
@@ -36,11 +36,18 @@ class AuthController {
    *                 status:
    *                   type: number
    *                   example: 200
-   *                 token:
+   *                 success:
+   *                   type: bool
+   *                   example: true
+   *                 message:
    *                   type: string
+   *                   example: Inicio de sesión exitoso
    *                 data:
    *                   type: object
    *                   $ref: '#/components/schemas/User'
+   *                 metadata:
+   *                   type: any
+   *                   example: {}
    *       401:
    *         description: Credenciales invalidas
    */
