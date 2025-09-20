@@ -23,64 +23,64 @@ A continuación se declaran los pasos para la instalación y ejecución de la AP
 
 1. **Clonar el repositorio**
 
-Clonar el repositorio
-```bash
-git clone https://github.com/diegobauto/api-bufete.git
-```
+    Clonar el repositorio
+    ```bash
+    git clone https://github.com/diegobauto/api-bufete.git
+    ```
 
-Ingresar a la carpeta clonada (al proyecto)
-```bash
-cd api-bufete
-```
+    Ingresar a la carpeta clonada (al proyecto)
+    ```bash
+    cd api-bufete
+    ```
 
 2. **Instalar dependencias**
 
-```bash
-npm install
-```
+    ```bash
+    npm install
+    ```
 
 3. **Configurar variables de entorno**
 
-Crear archivo .env en la raíz del proyecto, usar de ejemplo:
-```bash
-NODE_ENV=development
-PORT=3000
+    Crear archivo .env en la raíz del proyecto, usar de ejemplo:
+    ```bash
+    NODE_ENV=development
+    PORT=3000
 
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=db_bufete
-DB_USER=postgres
-DB_PASSWORD=postgres
+    # Database
+    DB_HOST=localhost
+    DB_PORT=5432
+    DB_NAME=db_bufete
+    DB_USER=postgres
+    DB_PASSWORD=postgres
 
-# JWT
-JWT_SECRET=key-bufete-abogados
-JWT_EXPIRE=2h
-```
+    # JWT
+    JWT_SECRET=key-bufete-abogados
+    JWT_EXPIRE=2h
+    ```
 
 4. **Ejecutar archivo Docker Compose**
 
-Es necesario tener instalado Docker en tú maquina
-```bash
-docker compose up -d
-```
+    Es necesario tener instalado Docker en tú maquina
+    ```bash
+    docker compose up -d
+    ```
 
 5. **Ejecutar migraciones y seeders**
 
-Paso escencial para la creación de tablas y registros de prueba
-```bash
-npm run db:migrate
-```
+    Paso escencial para la creación de tablas y registros de prueba
+    ```bash
+    npm run db:migrate
+    ```
 
-```bash
-npm run db:seed
-```
+    ```bash
+    npm run db:seed
+    ```
 
 6. **Iniciar servidor**
 
-```bash
-npm run dev
-```
+    ```bash
+    npm run dev
+    ```
 
 La API estará disponible en `http://localhost:3000/`
 
