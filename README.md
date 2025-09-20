@@ -217,6 +217,29 @@ Para login con JWT (Creados con seeders)
 
 ---
 
-## 📖 Ejemplos de Uso (evidencias)
+## 📖 Ejemplos de Uso (funcionamiento API)
 
-![Inciar Sesión](public/01%20-%20Iniciar%20Sesión.mkv)
+- Iniciar sesión
+![Inciar Sesión](public/01%20-%20Iniciar%20Sesión.gif)
+
+
+- Crear una demanda
+![Crear una demanda](public/02%20-%20Crear%20una%20demanda.gif)
+
+- Obtener lista de demandas
+![Obtener lista de demandas](public/03%20-%20Obtener%20lista%20de%20demandas.gif)
+
+- Obtener lista de abogados
+![Obtener lista de abogados](public/04%20-%20Obtener%20lista%20de%20abogados.gif)
+
+- Obtener abogado
+![Obtener abogado](public/05%20-%20Obtener%20abogado.gif)
+
+- Crear un abogado
+![Crear un abogado](public/06%20-%20Crear%20un%20abogado.gif)
+
+- Asignar abogado a demanda
+![Asignar abogado a demanda](public/07%20-%20Asignar-abogado-a-demanda.gif)
+
+- Obtener demandas por abogado
+![Obtener demandas por abogado](public/08%20-%20Demandas-por-abogado.gif)
