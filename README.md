@@ -22,8 +22,8 @@ Desarrollar una API REST para la gestión de abogados y demandas en un bufete. S
 1. **Clonar el repositorio**
 
 ```bash
-git clone https://github.com/diegobauto/api_bufete
-cd api_bufete
+git clone https://github.com/diegobauto/api-bufete.git
+cd api-bufete
 ```
 2. **Instalar dependencias**
 
