@@ -218,3 +218,5 @@ Para login con JWT (Creados con seeders)
 ---
 
 ## 📖 Ejemplos de Uso (evidencias)
+
+![Inciar Sesión](public/01%20-%20Iniciar%20Sesión.mkv)
