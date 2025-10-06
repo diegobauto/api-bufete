@@ -1,8 +1,13 @@
 const { Lawsuit, Lawyer } = require("../models");
+const BaseRepository = require("./BaseRepository");
 
-class LawsuitRepository {
-  async create(lawyerData) {
-    return await Lawsuit.create(lawyerData);
+class LawsuitRepository extends BaseRepository {
+  constructor() {
+    super(Lawsuit, ["case_number", "plaintiff_name", "defendant_name"]);
+  }
+
+  async create(lawsuitData) {
+    return await Lawsuit.create(lawsuitData);
   }
 
   async update(lawsuit, data) {
@@ -36,21 +41,19 @@ class LawsuitRepository {
     });
   }
 
-  async findAllPaginated({ page = 1, limit = 10, status, lawyer_id }) {
-    const offset = (page - 1) * limit;
+  async findAll(queryParams) {
+    // Obtener todas las asociaciones del modelo automáticamente
+    const associations = Object.keys(this.model.associations || {});
 
-    const where = {};
-    if (status) where.status = status;
-    if (lawyer_id) where.lawyer_id = lawyer_id;
+    // Construir includes dinámicamente basados en lo que se solicita
+    const includeOptions = queryParams.include
+      .filter((name) => associations.includes(name))
+      .map((name) => ({
+        association: name,
+        required: false,
+      }));
 
-    const { count, rows: lawsuits } = await Lawsuit.findAndCountAll({
-      where,
-      limit,
-      offset,
-      order: [["created_at", "DESC"]],
-    });
-
-    return { count, lawsuits };
+    return await this.findAllDynamic(queryParams, includeOptions);
   }
 }
 

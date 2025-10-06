@@ -111,7 +111,9 @@ class LawsuitController {
    *                   example: {}
    */
   obtenerDemandas = catchAsync(async (req, res) => {
-    const { lawsuits, metadata } = await LawsuitService.obtenerDemandas(req.query);
+    const { lawsuits, metadata } = await LawsuitService.obtenerDemandas(
+      req.parsedQuery
+    );
     res.status(200).json({
       status: 200,
       success: true,

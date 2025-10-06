@@ -21,28 +21,11 @@ class LawsuitService {
     return lawsuit;
   }
 
-  async obtenerDemandas(query) {
-    const page = parseInt(query.page) || 1;
-    const limit = parseInt(query.limit) || 10;
-    const { status, lawyer_id } = query;
-
-    const { count, lawsuits } = await LawsuitRepository.findAllPaginated({
-      page,
-      limit,
-      status,
-      lawyer_id,
-    });
-
-    const totalPages = Math.ceil(count / limit);
-
+  async obtenerDemandas(queryParams) {
+    const { data, metadata } = await LawsuitRepository.findAll(queryParams);
     return {
-      lawsuits,
-      metadata: {
-        currentPage: page,
-        totalPages,
-        totalItems: count,
-        limit,
-      },
+      lawsuits: data || [],
+      metadata: metadata,
     };
   }
 
