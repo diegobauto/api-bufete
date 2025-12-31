@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op } = require("sequelize");
 
 class BaseRepository {
   constructor(model, searchFields = []) {
@@ -6,26 +6,57 @@ class BaseRepository {
     this.searchFields = searchFields;
   }
 
-  async findAllDynamic(queryParams, includeOptions = []) {
+  /**
+   * Método principal para obtener registros con búsqueda, filtros,
+   * ordenamiento, paginación y asociaciones dinámicas.
+   */
+  async findAllDynamic(queryParams = {}, includeOptions = []) {
     try {
-      const { pagination, sortBy, orderBy, conditions, filters, include, fields } = queryParams;
-      
-      // Construir WHERE con operadores avanzados
-      const whereConditions = this.buildWhereConditions(conditions, filters);
-      
-      // Configuración de búsqueda
+      const {
+        pagination = { limit: 10, offset: 0, page: 1 },
+        sortBy = "id",
+        orderBy = "ASC",
+        conditions = [],
+        include = [],
+        fields = [],
+        search = "",
+      } = queryParams;
+
+      // Construir condiciones
+      let whereConditions = this.buildWhereConditions(conditions);
+
+      // Búsqueda global
+      if (search && search.trim() && this.searchFields.length > 0) {
+        whereConditions = this.applySearchToConditions(
+          whereConditions,
+          search.trim()
+        );
+      }
+
+      const dynamicIncludes =
+        includeOptions.length > 0
+          ? includeOptions
+          : this.buildIncludeOptions(queryParams);
+
       const queryConfig = {
         where: whereConditions,
-        include: includeOptions,
-        order: [[sortBy, orderBy]],
-        limit: pagination.limit,
-        offset: pagination.offset,
-        distinct: true
+        include: dynamicIncludes,
+        distinct: true,
+        subQuery: false,
       };
-      
-      // Aplicar selección de campos si se especifica
+
+      // Ordenamiento
+      queryConfig.order = this.buildOrderClause(sortBy, orderBy);
+
+      // Paginación
+      if (pagination.limit > 0) {
+        queryConfig.limit = Math.min(pagination.limit, 1000);
+        queryConfig.offset = Math.max(pagination.offset, 0);
+      }
+
+      // Campos específicos
       if (fields.length > 0) {
-        queryConfig.attributes = fields;
+        queryConfig.attributes = this.sanitizeFields(fields);
       }
 
       const { count, rows } = await this.model.findAndCountAll(queryConfig);
@@ -33,69 +64,145 @@ class BaseRepository {
       return {
         data: rows || [],
         metadata: {
-          limit: pagination.limit,
-          offset: pagination.offset,
+          limit: queryConfig.limit || count,
+          offset: queryConfig.offset || 0,
           total: count,
           currentPage: pagination.page,
-          totalPages: count > 0 ? Math.ceil(count / pagination.limit) : 0
-        }
+          totalPages: queryConfig.limit
+            ? Math.ceil(count / queryConfig.limit)
+            : 1,
+        },
       };
     } catch (error) {
-      // Si es cualquier error de DB, retornar lista vacía
-      console.error('Error en query, retornando lista vacía:', error.message);
-      
+      console.error("[BaseRepository] Error en findAllDynamic:", error);
       return {
         data: [],
         metadata: {
-          limit: queryParams.pagination.limit,
-          offset: queryParams.pagination.offset,
+          limit: queryParams.pagination?.limit || 10,
+          offset: queryParams.pagination?.offset || 0,
           total: 0,
-          currentPage: queryParams.pagination.page,
-          totalPages: 0
-        }
+          currentPage: queryParams.pagination?.page || 1,
+          totalPages: 0,
+        },
+        error:
+          process.env.NODE_ENV === "development"
+            ? error.message
+            : "Query failed",
       };
     }
   }
 
-  buildWhereConditions(conditions, filters) {
+  /**
+   * Construye automáticamente los include a partir de las asociaciones
+   * definidas en el modelo.
+   */
+  buildIncludeOptions(queryParams = {}) {
+    const modelAssociations = Object.keys(this.model.associations || {});
+
+    if (!Array.isArray(queryParams.include) || queryParams.include.length === 0)
+      return [];
+
+    return queryParams.include
+      .filter((name) => modelAssociations.includes(name))
+      .map((name) => ({
+        association: name,
+        required: false,
+      }));
+  }
+
+  /** Construye las condiciones WHERE según operadores avanzados */
+  buildWhereConditions(conditions) {
     const whereConditions = {};
-    
-    // Aplicar condiciones con operadores
-    conditions.forEach(condition => {
-      const { field, operator, value } = condition;
-      
-      // Manejar NULL
-      if (value === null) {
-        if (operator === '=') {
-          whereConditions[field] = { [Op.is]: null };
-        } else if (operator === '!=') {
-          whereConditions[field] = { [Op.not]: null };
-        }
+
+    const operatorMap = {
+      "=": Op.eq,
+      "!=": Op.ne,
+      ">": Op.gt,
+      "<": Op.lt,
+      ">=": Op.gte,
+      "<=": Op.lte,
+      like: Op.like,
+      ilike: Op.iLike,
+      in: Op.in,
+      "not in": Op.notIn,
+    };
+
+    conditions.forEach(({ field, operator, value }) => {
+      if (!field) return;
+
+      const sequelizeOp = operatorMap[operator.toLowerCase?.()] || Op.eq;
+
+      if (
+        ["in", "not in"].includes(operator.toLowerCase?.()) &&
+        typeof value === "string"
+      ) {
+        whereConditions[field] = {
+          [sequelizeOp]: value.split(",").map((v) => v.trim()),
+        };
         return;
       }
-      
-      // Mapear operadores
-      const operatorMap = {
-        '=': Op.eq,
-        '!=': Op.ne,
-        '>': Op.gt,
-        '<': Op.lt,
-        '>=': Op.gte,
-        '<=': Op.lte
-      };
-      
-      const sequelizeOp = operatorMap[operator] || Op.eq;
-      whereConditions[field] = { [sequelizeOp]: value };
-    });
-    
-    // Aplicar filtros simples (compatibilidad)
-    Object.keys(filters).forEach(key => {
-      if (!whereConditions[key]) {
-        whereConditions[key] = filters[key];
+
+      if (
+        ["in", "not in"].includes(operator.toLowerCase?.()) &&
+        Array.isArray(value)
+      ) {
+        whereConditions[field] = { [sequelizeOp]: value };
+        return;
       }
+
+      if (
+        ["like", "ilike"].includes(operator.toLowerCase?.()) &&
+        typeof value === "string"
+      ) {
+        whereConditions[field] = { [sequelizeOp]: `%${value}%` };
+        return;
+      }
+
+      whereConditions[field] = { [sequelizeOp]: value };
     });
 
     return whereConditions;
+  }
+
+  /** Construye la cláusula ORDER BY */
+  buildOrderClause(sortBy, orderBy) {
+    const validDirections = ["ASC", "DESC", "asc", "desc"];
+    const direction = validDirections.includes(orderBy)
+      ? orderBy.toUpperCase()
+      : "ASC";
+
+    if (Array.isArray(sortBy)) {
+      return sortBy.map((field, idx) => [
+        field,
+        Array.isArray(orderBy)
+          ? (orderBy[idx] || "ASC").toUpperCase()
+          : direction,
+      ]);
+    }
+
+    return [[sortBy || "id", direction]];
+  }
+
+  /** Limpia la lista de campos a seleccionar */
+  sanitizeFields(fields) {
+    return fields.filter(
+      (field) => field && typeof field === "string" && field.trim().length > 0
+    );
+  }
+
+  /** Aplica búsqueda global sobre múltiples campos */
+  applySearchToConditions(whereConditions, searchTerm) {
+    const searchConditions = this.searchFields.map((field) => ({
+      [field]: { [Op.iLike]: `%${searchTerm}%` },
+    }));
+
+    if (Object.keys(whereConditions).length > 0) {
+      return {
+        [Op.and]: [whereConditions, { [Op.or]: searchConditions }],
+      };
+    }
+
+    return { [Op.or]: searchConditions };
   }
 }
 

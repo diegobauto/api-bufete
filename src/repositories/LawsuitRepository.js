@@ -3,7 +3,8 @@ const BaseRepository = require("./BaseRepository");
 
 class LawsuitRepository extends BaseRepository {
   constructor() {
-    super(Lawsuit, ["case_number", "plaintiff_name", "defendant_name"]);
+    // IMPORTANTE: Los campos de busqueda no deben ser ENUMs
+    super(Lawsuit, ["case_number", "plaintiff"]);
   }
 
   async create(lawsuitData) {
@@ -18,6 +19,13 @@ class LawsuitRepository extends BaseRepository {
     return await Lawsuit.findOne({
       where: { case_number: case_number },
     });
+  }
+
+  async findAll(queryParams) {
+    // Puedo pasar los include que quiere desde el inicio (opcional)
+    // return await this.findAllDynamic(queryParams, ["lawyer"]);
+
+    return await this.findAllDynamic(queryParams);
   }
 
   async findById(id, options = {}) {
@@ -39,21 +47,6 @@ class LawsuitRepository extends BaseRepository {
     return await Lawsuit.findByPk(id, {
       include: includeOptions,
     });
-  }
-
-  async findAll(queryParams) {
-    // Obtener todas las asociaciones del modelo automáticamente
-    const associations = Object.keys(this.model.associations || {});
-
-    // Construir includes dinámicamente basados en lo que se solicita
-    const includeOptions = queryParams.include
-      .filter((name) => associations.includes(name))
-      .map((name) => ({
-        association: name,
-        required: false,
-      }));
-
-    return await this.findAllDynamic(queryParams, includeOptions);
   }
 }
 
